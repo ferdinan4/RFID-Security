@@ -1,0 +1,9 @@
+{
+    "mysql_host": "localhost",
+    "mysql_name": "rfid",
+    "mysql_user": "rfid",
+    "mysql_pass": "rfid",
+
+    "memcached_key" : "rfid.CvO7vtcu",
+    "memcached_expiration" : 3600
+}

@@ -1,0 +1,9 @@
+{
+    "config": {
+        "vendor-dir": "inc/vendor"
+    },
+    "require": {
+        "slim/slim": "2.*",
+        "ircmaxell/password-compat": "dev-master"
+    }
+}
