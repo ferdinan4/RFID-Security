@@ -51,8 +51,6 @@ class RFID {
 	$this->params['bid'] = $id;
         $this->checkParams(array('uid'));
         $this->db->insert("user_business", $this->params);
-        echo $this->db->getError();
-
     }
 
     public function deleteUserFromBusiness($id, $uid) {
@@ -60,7 +58,18 @@ class RFID {
     }
 
     public function checkGPSLock($bid, $cid) {
-        $this->slim->response->setBody();
+	$udata = $this->db->select("users", array("id", "lat", "lon"), "`card` = '{$cid}'");
+	if(count($udata)) {
+		$udata = $udata[0];
+		$id = $udata['id'];
+		if($this->db->select("user_business", array("bid", "uid"), "`bid` = '{$bid}' AND `uid` = '{$id}'")) {
+			$bdata = $this->db->select("business", array("id", "lat", "lon", "radio"), "`id` = '{$bid}'")[0];
+			if($this->distance($udata['lat'], $udata['lon'], $bdata['lat'], $bdata['lon']) < $bdata['radio']) {
+	                        $this->slim->halt(200, "");
+			}
+		}
+	}
+	$this->slim->halt(403, "");
     }
 
     public function checkUserLock($bid, $cid) {
@@ -72,6 +81,16 @@ class RFID {
 		}
 	}
 	$this->slim->halt(403, "");
+    }
+
+    private function distance($lat1, $lon1, $lat2, $lon2) {
+	$theta = $lon1 - $lon2;
+	$dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+	$dist = acos($dist);
+	$dist = rad2deg($dist);
+	$miles = $dist * 60 * 1.1515;
+
+	return ($miles * 1609.344);
     }
 
     private function checkParams($params) {
