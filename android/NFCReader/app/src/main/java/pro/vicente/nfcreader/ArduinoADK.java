@@ -35,7 +35,7 @@ public abstract class ArduinoADK extends AppCompatActivity {
     private boolean mPermissionRequestPending;
 
     /**
-     * Is called when a USB connection is detected
+     * Is called when a USB connection is detected and try to initializate the communication with arduino 
      */
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
@@ -70,7 +70,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
         registerReceiver(mUsbReceiver, filter);
     }
-
+/**Started the communcation with arduino 
+ * @param accessory is the USB device
+**/
     private void openAccessory(UsbAccessory accessory) {
         mFileDescriptor = mUsbManager.openAccessory(accessory);
         if (mFileDescriptor != null) {
@@ -84,7 +86,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
             Toast.makeText(ArduinoADK.this, R.string.accesory_open_failed, Toast.LENGTH_LONG).show();
         }
     }
-
+/**finish the communication with arduino
+ *
+**/
     private void closeAccessory() {
         setConnectionStatus(false);
 
@@ -106,6 +110,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
         }
     }
 
+/**Show if is connected or not by USB
+ * @param connected return True or false depends of the connection
+**/
     private void setConnectionStatus(boolean connected) {
         Toast.makeText(ArduinoADK.this, connected ? getString(R.string.connected) : getString(R.string.disconnected), Toast.LENGTH_LONG).show();
     }
@@ -121,6 +128,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
         return new String(hexChars);
     }
 
+/** If the communication have been started, ask us if really  we want to keen on the app
+ *
+**/
     @Override
     public void onBackPressed() {
         if (mAccessory != null) {
@@ -141,6 +151,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
         }
     }
 
+/**Try to communicate when the app is onResume()
+ *
+**/
     @Override
     public void onResume() {
         super.onResume();
@@ -169,7 +182,7 @@ public abstract class ArduinoADK extends AppCompatActivity {
     }
 
     /**
-     * Override onDestroy() and we access to onDestroy AppCombatActivity
+     * Override onDestroy() 
      */
     @Override
     public void onDestroy() {
