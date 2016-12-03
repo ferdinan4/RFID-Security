@@ -5,12 +5,18 @@
 *
 **/
 class RFID {
+
     private $slim;
 
+    private $memcached;
     private $config;
     private $db;
 
     private $params;
+
+    private $user;
+
+    const SESSION_LENGTH = 32;
 
     /**
     * RFID constructor
@@ -20,21 +26,59 @@ class RFID {
 
         // Decode JSON object from the DB config 
         $this->config = json_decode(file_get_contents(__DIR__ . '/config.json')); 
+
         //Obtain an instace from the DB
         $this->db = db::getInstance($this->config->mysql_host, $this->config->mysql_name, $this->config->mysql_user, $this->config->mysql_pass); 
 
+        $this->memcached = new Memcached($this->config->memcached_key);
+        $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+        $this->memcached->addServer('localhost', 11211);
 
         $this->slim = $slim;
+
         //package the parameter of the HTTP request in an array
         $this->params = json_decode($slim->request->getBody(), true); 
+        $this->user = null;
     }
+
+    public function createSession() {
+        $this->checkParams(array('user', 'pwd'));
+
+        if ($user = $this->db->select("users", null, "`user` = '{$this->params['user']}'")) {
+	    $user = $user[0];
+            if (password_verify($this->params['pwd'], $user['pwd'])) {
+                $session = bin2hex(mcrypt_create_iv(static::SESSION_LENGTH / 2, MCRYPT_DEV_URANDOM));
+
+                if ($oldSession = $this->memcached->get($user['user'])) {
+                    $this->memcached->delete($user['user']);
+                    $this->memcached->delete($oldSession);
+                }
+
+                $this->memcached->set($session, $user['id'], $this->config->memcached_expiration);
+                $this->memcached->set($user['user'], $session, $this->config->memcached_expiration);
+
+                $this->slim->response->setStatus(201);
+                $this->slim->response->setBody($this->jsonEncode(array('session' => $session)));
+            } else {
+                $this->slim->halt(403, "Password mismatch for {$this->params['user']}.");
+            }
+        } else {
+            $this->slim->halt(403, "Unknown user {$this->params['user']}.");
+        }
+    }
+
+    public function getSession() {
+        $this->slim->response->setBody(static::jsonEncode($this->user));
+    }
+
 
     /**
     * Funtion to create an user   
     **/
     public function createUser() {
-        //Verify that at least we recieve the parameters 'user' 'pwd' 'name' and 'surname'
+          //Verify that at least we recieve the parameters 'user' 'pwd' 'name' and 'surname'
 	   $this->checkParams(array('user', 'pwd', 'name', 'surname'));
+	   $this->params['pwd'] = password_hash($this->params['pwd'], PASSWORD_DEFAULT);
 	   $this->db->insert("users", $this->params);
     }
 
@@ -165,6 +209,22 @@ class RFID {
             if (!isset($this->params[$required])) {
                 $this->slim->halt(400, "Missing required parameter \"{$required}\"");
             }
+        }
+    }
+
+    private static function jsonEncode($object) {
+        return json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function authenticate() {
+        if (isset($_SERVER['PHP_AUTH_USER']) && ($user = $this->memcached->get($_SERVER['PHP_AUTH_USER']))) {
+            if ($user = $this->db->select("users", null, "`id` = '{$user}'")) {
+                $this->user = $user;
+            } else {
+                $this->slim->halt(500, "An active session was found, but had no user associated to it.");
+            }
+        } else {
+            $this->slim->halt(401, "This method requires an active session.");
         }
     }
 

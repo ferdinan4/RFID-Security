@@ -28,57 +28,60 @@ $app->get('/', function() {
 *here we defined all request of the API
 **/
 
+$app->post('/session/', array($rfid, 'createSession'));
+$app->get('/session/', array($rfid, 'authenticate'), array($rfid, 'getSession'));
+
 /**
 *This is a POST request, for creating new users, and call 'createUser'  of the RFID class
 **/
-$app->post('/users/', array($rfid, 'createUser'));
+$app->post('/users/', array($rfid, 'authenticate'), array($rfid, 'createUser'));
 
 /**
 *This is a PUT request, which recieve an "id" from the user that we want to update, calling the method 'updateUser' from the RFID class
 **/
-$app->put('/users/:id/', array($rfid, 'updateUser'));
+$app->put('/users/:id/', array($rfid, 'authenticate'), array($rfid, 'updateUser'));
 
 /**
 *This is a DELETE request, which recieve an "id" from the user that we want to delete, calling the method 'deleteUser' from the RFID class
 **/
-$app->delete('/users/:id/', array($rfid, 'deleteUser'));
+$app->delete('/users/:id/', array($rfid, 'authenticate'), array($rfid, 'deleteUser'));
 
 /**
 *This is a POST request, for creating new Business, and call 'createBusiness'  of the RFID class
 **/
-$app->post('/business/', array($rfid, 'createBusiness'));
+$app->post('/business/', array($rfid, 'authenticate'), array($rfid, 'createBusiness'));
 
 /**
 *This is a PUT request, which recieve an "id" from the business that we want to update, calling the method 'updateBusiness' from the RFID class
 **/
-$app->put('/business/:id/', array($rfid, 'updateBusiness'));
+$app->put('/business/:id/', array($rfid, 'authenticate'), array($rfid, 'updateBusiness'));
 
 /**
 *This is a DELETE request, which recieve an "id" from the business that we want to delete, calling the method 'deleteBusiness' from the RFID class
 **/
-$app->delete('/business/:id/', array($rfid, 'deleteBusiness'));
+$app->delete('/business/:id/', array($rfid, 'authenticate'), array($rfid, 'deleteBusiness'));
 
 /**
 *This is a GET request, which recieve an "id" from the card and from the business asociated, calling the method 'checkGPSLock' from the RFID class
 *This 'checkGPSLock' check if the geoposition of the mobile asociated to the "card id" is allow range.
 **/
-$app->get('/business/:bid/check/gps/:cid/', array($rfid, 'checkGPSLock'));
+$app->get('/business/:bid/check/gps/:cid/', array($rfid, 'authenticate'), array($rfid, 'checkGPSLock'));
 
 /**
 *This is a GET request, which recieve an "id" from the card that we want to delete, calling the method 'deleteUser' from the RFID class
 *This 'checkUserLock' check if this id card is associated to that bussiness
 **/
-$app->get('/business/:bid/check/:cid/', array($rfid, 'checkUserLock'));
+$app->get('/business/:bid/check/:cid/', array($rfid, 'authenticate'), array($rfid, 'checkUserLock'));
 
 /**
 *This is a POST request, add an user to the business
 **/
-$app->post('/business/:id/employees', array($rfid, 'addUserToBusiness'));
+$app->post('/business/:id/employees', array($rfid, 'authenticate'), array($rfid, 'addUserToBusiness'));
 
 /**
 *This is a DELETE request, delete users associated to a business
 **/
-$app->delete('/business/:id/employees/:uid', array($rfid, 'deleteUserFromBusiness'));
+$app->delete('/business/:id/employees/:uid', array($rfid, 'authenticate'), array($rfid, 'deleteUserFromBusiness'));
 
 /**
 *Execute the APIRest
