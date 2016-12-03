@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.widget.ImageView;
 
 import pro.vicente.gps2fa.R;
 import pro.vicente.gps2fa.location.services.RFIDLocationService;
@@ -14,10 +16,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_FINE_LOCATION = 0;
 
+    private ImageView image;
+    private Toolbar toolbar;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.app_name);
+
+        image = (ImageView) findViewById(R.id.image);
 
         loadPermissions(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_FINE_LOCATION);
     }

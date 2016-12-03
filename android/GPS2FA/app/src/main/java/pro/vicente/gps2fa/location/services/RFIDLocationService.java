@@ -137,42 +137,10 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         //TODO user location
         mGeofenceList.add(new Geofence.Builder()
                 .setRequestId("1")
-                .setCircularRegion(42.6226505d, -5.5646231d, 100)
+                .setCircularRegion(42.6033412, -5.5789584, 100)
                 .setExpirationDuration(604800000)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build());
-    }
-
-    private String[] getAddressFromLocation(Location loc) {
-        String[] info = new String[2];
-        try {
-            List<Address> addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-            if (addresses != null && addresses.size() != 0) {
-                Address address = addresses.get(0);
-                if ((info[0] = address.getThoroughfare()) != null) {
-                    int index;
-                    if ((index = info[0].lastIndexOf(',')) != -1 && index == info[0].length() - 1) {
-                        info[0] = info[0].substring(0, info[0].length() - 1);
-                    }
-                    if (address.getLocality() != null) {
-                        info[0] += " - " + address.getLocality();
-                    } else if (address.getSubAdminArea() != null) {
-                        info[0] += " - " + address.getSubAdminArea();
-                    }
-                }
-                try {
-                    if (address.getFeatureName() != null) {
-                        Integer.parseInt(address.getFeatureName());
-                    }
-                    info[1] = null;
-                } catch (NumberFormatException e) {
-                    info[1] = address.getFeatureName();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return info;
     }
 
     private Location getLastLocation() {

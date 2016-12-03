@@ -33,10 +33,10 @@ import restfulapi.modules.RESTAddDefaultHeadersModule;
 public class LoginActivity extends FragmentActivity {
 
     private Button login;
-    private EditText user, pwd;
+    private EditText user, pwd, server;
     private SharedPreferences preferences;
 
-    private RESTfulAPI rest = RESTfulAPI.createInstance(this, RESTfulConsts.REST_URL);
+    private RESTfulAPI rest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +58,7 @@ public class LoginActivity extends FragmentActivity {
         this.login = (Button) findViewById(R.id.sign_in);
         this.user = (EditText) findViewById(R.id.user);
         this.pwd = (EditText) findViewById(R.id.pwd);
+        this.server = (EditText) findViewById(R.id.server);
 
         this.login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +91,7 @@ public class LoginActivity extends FragmentActivity {
                             .putString(SharedPreferencesHandler.CREDENTIALS_PWD, pwdCredential)
                             .commit();
 
+                    rest = RESTfulAPI.createInstance(LoginActivity.this, server.getText().toString());
                     rest.addModule(new RESTAddDefaultHeadersModule());
                     rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
                     rest.addModule(new RESTAddAuthBasicModule((String) data.get("session"), "suchpassword"));

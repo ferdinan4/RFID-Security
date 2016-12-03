@@ -8,6 +8,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 
 import pro.vicente.nfcreader.R;
 import pro.vicente.nfcreader.RESTModules.RESTRestoreSessionModule;
@@ -29,6 +30,8 @@ public class MainActivity extends ArduinoADK {
 
     private RESTfulAPI rest;
     private NfcAdapter mNfcAdapter;
+    private Toolbar toolbar;
+
 
     /**
      * Override 'onCreate' and associate the layout activity_main and create an instace from our APIRest
@@ -39,6 +42,10 @@ public class MainActivity extends ArduinoADK {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.app_name);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         try {
@@ -124,7 +131,7 @@ public class MainActivity extends ArduinoADK {
     public void onResume() {
         super.onResume();
 
-        if (!mNfcAdapter.isEnabled()) {
+        if (mNfcAdapter != null && !mNfcAdapter.isEnabled()) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.enable_nfc_title)
                     .setMessage(R.string.please_activate_nfc)
@@ -136,7 +143,8 @@ public class MainActivity extends ArduinoADK {
                     .show();
         }
 
-        mNfcAdapter.enableForegroundDispatch(this, PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0), null, null);
+        if (mNfcAdapter != null)
+            mNfcAdapter.enableForegroundDispatch(this, PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0), null, null);
     }
 
 
