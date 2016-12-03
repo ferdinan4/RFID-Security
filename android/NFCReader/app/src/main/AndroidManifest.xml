@@ -19,12 +19,18 @@
 
         <uses-library android:name="com.android.future.usb.accessory"></uses-library>
 
-        <activity android:name="pro.vicente.nfcreader.MainActivity">
+        <activity
+            android:name=".activities.LoginActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="pro.vicente.nfcreader.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>

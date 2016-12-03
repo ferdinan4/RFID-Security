@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">GPS 2FA</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+
+    <string name="log_in">Log in!</string>
+    <string name="type_your_password">Type your password</string>
+    <string name="type_your_username">Type your username</string>
+
+    <string name="LoginActivity_user_or_pass_incorrect">Incorrect user and/or password </string>
+    <string name="LoginActivity_empty_username_error">Username field cannot be empty </string>
+    <string name="LoginActivity_empty_name_error">Name field cannot be empty </string>
+    <string name="LoginActivity_empty_surname_error">Last name field cannot be empty </string>
+    <string name="LoginActivity_invalid_email_error">Incorrect email address </string>
+    <string name="LoginActivity_empty_password_error">Password field cannot be empty </string>
+    <string name="LoginActivity_password_not_equal_error">Passwords do not match </string>
+    <string name="an_error_ocurred">An error ocurred</string>
+    <string name="check_your_internet_connection">Please, check your internet connection</string>
+    <string name="provide_user_and_pass">Provide an Username and Password</string>
+
+</resources>

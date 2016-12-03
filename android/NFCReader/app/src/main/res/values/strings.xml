@@ -16,4 +16,19 @@
     <string name="accesory_opened">Accessory opened</string>
     <string name="accesory_open_failed">Accessory open failed</string>
     <string name="permission_denied">"Permission denied for accessory "</string>
+
+    <string name="LoginActivity_user_or_pass_incorrect">Incorrect user and/or password </string>
+    <string name="LoginActivity_empty_username_error">Username field cannot be empty </string>
+    <string name="LoginActivity_empty_name_error">Name field cannot be empty </string>
+    <string name="LoginActivity_empty_surname_error">Last name field cannot be empty </string>
+    <string name="LoginActivity_invalid_email_error">Incorrect email address </string>
+    <string name="LoginActivity_empty_password_error">Password field cannot be empty </string>
+    <string name="LoginActivity_password_not_equal_error">Passwords do not match </string>
+    <string name="an_error_ocurred">An error ocurred</string>
+    <string name="check_your_internet_connection">Please, check your internet connection</string>
+
+    <string name="log_in">Log in!</string>
+    <string name="type_your_password">Type your password</string>
+    <string name="type_your_username">Type your username</string>
+    <string name="provide_user_and_pass">Provide an Username and Password</string>
 </resources>
