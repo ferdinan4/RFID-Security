@@ -30,6 +30,11 @@ public class RESTRestoreSessionModule extends RESTfulAPIModule {
     private final String user, pwd;
     private SharedPreferences preferences;
 
+    /**
+     * Constructor de la clase, en el inicializamos las variables que las obtendremos de
+     * las shared preferences
+     * @param context
+     */
     public RESTRestoreSessionModule(Context context) {
         super(TAG);
         preferences = SharedPreferencesHandler.getCredentialsSharedPreferences(context);
@@ -37,6 +42,14 @@ public class RESTRestoreSessionModule extends RESTfulAPIModule {
         pwd = preferences.getString(SharedPreferencesHandler.CREDENTIALS_PWD, null);
     }
 
+    /**
+     * Restaura una sesion de usuario si esta ha caducado
+     *
+     * @param restApi
+     * @param request
+     * @param response
+     * @param sync
+     */
     @Override
     public void onPostExecute(final RESTfulAPI restApi, final HttpMethod request, HttpResponse response, final boolean sync) {
         if (response != null && response.getCode() == 401 && user != null && pwd != null) {

@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 public class SharedPreferencesHandler {
     private static final String TAG = "SharedPreferencesHandler";
 
+    /**
+     * Datos que guardamos en la preferencias de usuario
+     */
     public static final String CREDENTIALS_ID = "LOGIN_CREDENTIALS_ID";
     public static final String CREDENTIALS_SESSION = "LOGIN_CREDENTIALS_SESSION";
     public static final String CREDENTIALS_USER = "LOGIN_CREDENTIALS_USER";

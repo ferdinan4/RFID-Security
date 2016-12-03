@@ -19,7 +19,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageView image;
     private Toolbar toolbar;
 
-
+    /**
+     * Este metodo inicializamos la vista y solicitamos los permisos al usuario para acceder a la
+     * localizacion
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
         loadPermissions(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_FINE_LOCATION);
     }
 
+    /**
+     * Este metodo es el encargado de solicitar el permiso al usuario
+     * @param perm Permiso que queremos solicitar
+     * @param requestCode Codigo de peticion
+     */
     private void loadPermissions(String perm, int requestCode) {
         if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {

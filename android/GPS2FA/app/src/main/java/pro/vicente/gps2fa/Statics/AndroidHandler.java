@@ -8,6 +8,10 @@ import android.view.inputmethod.InputMethodManager;
 public class AndroidHandler {
     private static final String TAG = "AndroidHandler";
 
+    /**
+     * Oculta el teclado de la activity que recibe como parametro
+     * @param activity activity que queremos ocultar el teclado
+     */
     public static void hideKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
@@ -16,6 +20,10 @@ public class AndroidHandler {
         }
     }
 
+    /**
+     * Muestra el teclado en la activity que pasemos por parametro
+     * @param activity activity en la que queremos que se muestre el teclado
+     */
     public static void showKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
