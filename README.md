@@ -16,9 +16,9 @@ We add the library used to management the USB.
 
 *Resources*: 
 
-https://github.com/ferdinan4/RFIDSecurity/tree/master/arduino/RFID_Reader
+https://github.com/ferdinan4/RFID-Security/tree/master/arduino/RFID_Reader
 
-https://github.com/ferdinan4/RFIDSecurity/tree/master/arduino/libraries/USB_Host_Shield_20
+https://github.com/ferdinan4/RFID-Security/tree/master/arduino/libraries/USB_Host_Shield_20
 
 **3. -RFID Reader**: This app coding in android (java) allow us to read NFC cards and, using the    APIRest defined in our server, we can check if the “id” 
 reader 
