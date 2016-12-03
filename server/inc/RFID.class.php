@@ -44,7 +44,7 @@ class RFID {
     public function createSession() {
         $this->checkParams(array('user', 'pwd'));
 
-        if ($user = $this->db->select("users", null, "`user` = '{$this->params['user']}'")) {
+        if ($user = $this->db->select("users", array('id', 'user', 'pwd', 'name', 'surname', 'card', 'lat', 'lon', 'timestamp'), "`user` = '{$this->params['user']}'")) {
 	    $user = $user[0];
             if (password_verify($this->params['pwd'], $user['pwd'])) {
                 $session = bin2hex(mcrypt_create_iv(static::SESSION_LENGTH / 2, MCRYPT_DEV_URANDOM));
@@ -73,21 +73,15 @@ class RFID {
 
 
     /**
-    * Funtion to create an user   
-    **/
-    public function createUser() {
-          //Verify that at least we recieve the parameters 'user' 'pwd' 'name' and 'surname'
-	   $this->checkParams(array('user', 'pwd', 'name', 'surname'));
-	   $this->params['pwd'] = password_hash($this->params['pwd'], PASSWORD_DEFAULT);
-	   $this->db->insert("users", $this->params);
-    }
-
-    /**
     * Funtion to create an Update an user 
     * @param $id id from the user that we want to apply this function  
     **/
-    public function updateUser($id) {
-	   $this->db->update("users", $this->params, "`id` = '{$id}'");
+    public function updateUser() {
+	   if($this->user != null) {
+           	$this->db->update("users", $this->params, "`id` = '{$this->user['id']}'");
+	   } else {
+		$this->slim->halt(403, "");
+	   }
     }
 
     /**
@@ -98,66 +92,24 @@ class RFID {
         $this->db->delete("users", "`id` = '{$id}'");
     }
 
-    /**
-    * Funtion to create a Business
-    **/
-    public function createBusiness() {
-       //Verify that at least we recieve the necessary parameters 
-        $this->checkParams(array('name', 'lat', 'lon', 'radio'));
-        $this->db->insert("business", $this->params);
-    }
-
-    /**
-    * Funtion to update a Business
-    * @param $id id from the business that we want to update
-    **/
-    public function updateBusiness($id) {
-        //Verify that at least we recieve the necessary parameters 
-        $this->db->update("business", $this->params, "`id` = '{$id}'");
-    }
-
-    /**
-    * Funtion to delete a Business
-    * @param $id id from the business that we want to delete
-    **/
-    public function deleteBusiness($id) {
-        $this->db->delete("business", "`id` = '{$id}'");
-    }
-
-    /**
-    * Function to associate an user to a bussines
-    * @param $id id from the business
-    **/
-    public function addUserToBusiness($id) {
-	$this->params['bid'] = $id;
-        $this->checkParams(array('uid'));
-        $this->db->insert("user_business", $this->params);
-    }
-
-    /**
-    * Function to delete an user from a business
-    * @param $id business id
-    * @param $uid user id
-    **/
-    public function deleteUserFromBusiness($id, $uid) {
-        $this->db->delete("user_business", "`bid` = '{$id}' AND `uid` = '{$uid}'");
-    }
 
     /**
     * Funtion that check if the geoposition of the mobile asociated to the "card id" is in allow range.
     * @param $bid business id
     * @param $cid card id
     **/
-    public function checkGPSLock($bid, $cid) {
-	$udata = $this->db->select("users", array("id", "lat", "lon"), "`card` = '{$cid}'");
-	if(count($udata)) {
-		$udata = $udata[0];
-		$id = $udata['id'];
-		if($this->db->select("user_business", array("bid", "uid"), "`bid` = '{$bid}' AND `uid` = '{$id}'")) {
-			$bdata = $this->db->select("business", array("id", "lat", "lon", "radio"), "`id` = '{$bid}'")[0];
-			if($this->distance($udata['lat'], $udata['lon'], $bdata['lat'], $bdata['lon']) < $bdata['radio']) {
-	                        $this->slim->halt(200, "");
+    public function checkGPSLock($cid) {
+	if($this->user != null) {
+		if($this->user['id'] == 1) {
+			$udata = $this->db->select("users", array("id", "lat", "lon"), "`card` = '{$cid}'");
+			if(count($udata) && $this->distance($udata[0]['lat'], $udata[0]['lon'], $this->user['lat'], $this->user['lon']) < $this->user['radio']) {
+				$this->slim->halt(200, "");
 			}
+		} else if ($this->user['card'] == $cid) {
+			$bdata = $this->db->select("users", array("lat", "lon", "radio"), "`id` = '1'")[0];
+			if($this->distance($this->user['lat'], $this->user['lon'], $bdata['lat'], $bdata['lon']) < $bdata['radio']) {
+                        	$this->slim->halt(200, "");
+                	}
 		}
 	}
 	$this->slim->halt(403, "");
@@ -168,16 +120,19 @@ class RFID {
     * @param $bid business id
     * @param $cid card id
     **/
-    public function checkUserLock($bid, $cid) {
-        $data = $this->db->select("users", array("id"), "`card` = '{$cid}'");
-	if(count($data)) {
-		$data = $data[0]['id'];
-		if($this->db->select("user_business", array("bid", "uid"), "`bid` = '{$bid}' AND `uid` = '{$data}'")) {
+    public function checkUserLock($cid) {
+	if($this->user != null) {
+		if($this->user['id'] == 1) {
+			if($this->db->select("users", array("id"), "`card` = '{$cid}'")) {
+				$this->slim->halt(200, "");
+			}
+		} else if($this->user['card'] == $cid) {
 			$this->slim->halt(200, "");
 		}
 	}
 	$this->slim->halt(403, "");
     }
+
 
     /**
     * Function that calculate the distance between two positions given in metters
@@ -219,7 +174,7 @@ class RFID {
     public function authenticate() {
         if (isset($_SERVER['PHP_AUTH_USER']) && ($user = $this->memcached->get($_SERVER['PHP_AUTH_USER']))) {
             if ($user = $this->db->select("users", null, "`id` = '{$user}'")) {
-                $this->user = $user;
+                $this->user = $user[0];
             } else {
                 $this->slim->halt(500, "An active session was found, but had no user associated to it.");
             }
