@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">NFC Reader</string>
+    <string name="ToggleButton">ToggleButton</string>
+
+    <string name="nfc_required">Tu dispositivo no dispone de la tecnología NFC.</string>
+
+    <string name="enable_nfc_title">Enable NFC</string>
+    <string name="please_activate_nfc">Please enable NFC and press Back to return to the application!</string>
+    <string name="go">Go!</string>
+    <string name="close_Activity">Closing Activity</string>
+    <string name="are_you_sure_exit">Are you sure you want to close this application?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="accesory_opened">Accessory opened</string>
+    <string name="accesory_open_failed">Accessory open failed</string>
+    <string name="permission_denied">"Permission denied for accessory "</string>
+</resources>
