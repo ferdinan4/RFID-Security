@@ -1,0 +1,49 @@
+: 1480684332:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios","password":"1234", "card_id":"00000000", "name":"David", "lastname":"Vicente Campos"}' http://rfid.furiios.es/users/
+: 1480685700:0;curl -H "Content-Type: application/json" -X DELETE -d '{"user":"furiios"}' http://rfid.furiios.es/users/
+: 1480687830:0;curl -H "Content-Type: application/json" -X PUT -d '{"user":"furiios","pwd":"12345", "name":"David", "surname":"Vicente Campos"}' http://rfid.furiios.es/users/
+: 1480687876:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios","pwd":"1234", "name":"David", "surname":"Vicente Campos"}' http://rfid.furiios.es/users/
+: 1480687952:0;curl -H "Content-Type: application/json" -X PUT -d '{"id":1,"lat":1.21,"lon":2.22}' http://rfid.furiios.es/locations/1
+: 1480687969:0;curl -H "Content-Type: application/json" -X PUT -d '{"id":1,"lat":"1.21","lon":"2.22"}' http://rfid.furiios.es/locations/1
+: 1480688046:0;curl -H "Content-Type: application/json" -X PUT -d '{"id":1, "lat":1, "lon": 2}' http://rfid.furiios.es/users/
+: 1480688800:0;curl -H "Content-Type: application/json" -X POST -d '{"name":"Incibe", "lat":2, "lon":1, "radios":20}' http://rfid.furiios.es/business/
+: 1480688805:0;curl -H "Content-Type: application/json" -X POST -d '{"name":"Incibe", "lat":2, "lon":1, "radio":20}' http://rfid.furiios.es/business/
+: 1480688825:0;curl -H "Content-Type: application/json" -X PUT -d '{"name":"Incibe", "lat":2, "lon":1, "radio":203}' http://rfid.furiios.es/business/1/
+: 1480688844:0;curl -H "Content-Type: application/json" -X DELETE http://rfid.furiios.es/business/1/
+: 1480688851:0;curl -H "Content-Type: application/json" -X POST -d '{"name":"Incibe", "lat":2, "lon":1, "radio":20}' http://rfid.furiios.es/business/
+: 1480689674:0;curl -H "Content-Type: application/json" -X POST -d '{"name":"Incibe"}' http://rfid.furiios.es/business/1/employees
+: 1480689682:0;curl -H "Content-Type: application/json" -X POST -d '{"uid":1}' http://rfid.furiios.es/business/1/employees
+: 1480689768:0;curl -H "Content-Type: application/json" -X DELETE http://rfid.furiios.es/business/1/employees/2
+: 1480689774:0;curl -H "Content-Type: application/json" -X DELETE http://rfid.furiios.es/business/1/employees/1
+: 1480693015:0;curl -H "Content-Type: application/json" -X GET http://rfid.furiios.es/business/1/check/000000/ -vv
+: 1480738801:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios2","pwd":"1234", "name":"David", "surname":"Vicente Campos"}' http://rfid.furiios.es/users/
+: 1480739246:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios2","pwd":"1234"}' http://rfid.furiios.es/session/
+: 1480741518:0;curl -H "Content-Type: application/json" -X GET -d '{"user":"furiios2","pwd":"1234"}' http://rfid.furiios.es/session/ -u f955d8485a353f1812dd41706e3a9a36:1234
+: 1480741594:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/session/ -u f955d8485a353f1812dd41706e3a9a36:1234
+: 1480748797:0;curl -H "Content-Type: application/json" -X GET -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/session/ -u 98892512e2d468aef148c01664598a76:1234
+: 1480749138:0;curl -H "Content-Type: application/json" -X GET -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 422965a4c6154050f00afaae33a6a13b:1234
+: 1480749301:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/session/
+: 1480749319:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234
+: 1480749435:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234
+: 1480749498:0;curl -H "Content-Type: application/json" -X GET -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/session/ -u 112bf13a4155f664409109de6726235e:1234
+: 1480749545:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234
+: 1480749729:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234 -vv
+: 1480749746:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234 -vv
+: 1480749751:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234 -vv
+: 1480753400:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 112bf13a4155f664409109de6726235e:1234 -vv
+: 1480754020:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"admin","pwd":"123456"}' http://rfid.furiios.es/session/
+: 1480754029:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754037:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754040:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754403:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754408:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01A/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754411:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u 011c985be29a15e135a44d05002a51a7:1234 -vv
+: 1480754484:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/session/
+: 1480754492:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u c5078a3b5b4d7870bf2f8cd6bd364036:1234 -vv
+: 1480754498:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01A/ -u c5078a3b5b4d7870bf2f8cd6bd364036:1234 -vv
+: 1480754757:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/F0B8E01C/ -u c5078a3b5b4d7870bf2f8cd6bd364036:1234 -vv
+: 1480754765:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u c5078a3b5b4d7870bf2f8cd6bd364036:1234 -vv
+: 1480754810:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"admin","pwd":"123456"}' http://rfid.furiios.es/session/
+: 1480754819:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 82e47f78ae24d74111439c27c062b966:1234 -vv
+: 1480754887:0;curl -H "Content-Type: application/json" -X POST -d '{"user":"furiios","pwd":"123456"}' http://rfid.furiios.es/session/
+: 1480754895:0;curl -H "Content-Type: application/json" -X GET  http://rfid.furiios.es/business/check/gps/F0B8E01C/ -u 912f93e0bc7f15c25be522afaac56c26:1234 -vv
+
