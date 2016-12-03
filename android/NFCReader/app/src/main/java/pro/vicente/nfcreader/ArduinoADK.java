@@ -17,6 +17,9 @@ import android.widget.Toast;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+*This class is used to communicate with arduino by USB
+**/
 public abstract class ArduinoADK extends AppCompatActivity {
 
     private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
@@ -31,6 +34,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
 
     private boolean mPermissionRequestPending;
 
+    /**
+     * Is called when a USB connection is detected
+     */
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -162,6 +168,9 @@ public abstract class ArduinoADK extends AppCompatActivity {
         }
     }
 
+    /**
+     * Override onDestroy() and we access to onDestroy AppCombatActivity
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();

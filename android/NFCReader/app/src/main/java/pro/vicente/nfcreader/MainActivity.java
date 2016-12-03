@@ -15,11 +15,18 @@ import es.furiios.restfulapi.callbacks.RESTCallback;
 import es.furiios.restfulapi.enums.CacheType;
 import es.furiios.restfulapi.methods.HttpGET;
 
+/**
+*In this main class
+**/
 public class MainActivity extends ArduinoADK {
 
     private RESTfulAPI rest;
     private NfcAdapter mNfcAdapter;
 
+/**
+*Override 'onCreate' and associate the layout activity_main and create an instace from our APIRest
+*@param savedInstanceState
+**/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +36,13 @@ public class MainActivity extends ArduinoADK {
         rest = RESTfulAPI.createInstance(this, "http://rfid.furiios.es");
     }
 
+/**
+*Override 'onNewIntent' that is called for the mobile when a NFC Card is read
+*After that, we extract data from the NFC card, and we make the GET request,if this request return 403, so the ID dont exist, so we turn on red led on arduino.
+*On the other hand if we obtain 200 we make again other GET request, to check if our geoposition is in an allowed range where we turn on green led or if it isn't
+*we will turn on yellow led and return 403.
+*@param intent
+**/
     @Override
     public void onNewIntent(Intent intent) {
         final Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -86,6 +100,7 @@ public class MainActivity extends ArduinoADK {
         rest.executeAsync(checkCard);
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
@@ -104,6 +119,7 @@ public class MainActivity extends ArduinoADK {
 
         mNfcAdapter.enableForegroundDispatch(this, PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0), null, null);
     }
+
 
     @Override
     public void onPause() {
