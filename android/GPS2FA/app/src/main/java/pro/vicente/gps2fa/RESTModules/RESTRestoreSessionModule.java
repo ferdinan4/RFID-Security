@@ -31,8 +31,7 @@ public class RESTRestoreSessionModule extends RESTfulAPIModule {
     private SharedPreferences preferences;
 
     /**
-     * Constructor de la clase, en el inicializamos las variables que las obtendremos de
-     * las shared preferences
+     * Class constructor, that initializes the variables, will get them from the shared preferences.
      * @param context
      */
     public RESTRestoreSessionModule(Context context) {
@@ -43,7 +42,7 @@ public class RESTRestoreSessionModule extends RESTfulAPIModule {
     }
 
     /**
-     * Restaura una sesion de usuario si esta ha caducado
+     * Restore a user session if it has expired
      *
      * @param restApi
      * @param request

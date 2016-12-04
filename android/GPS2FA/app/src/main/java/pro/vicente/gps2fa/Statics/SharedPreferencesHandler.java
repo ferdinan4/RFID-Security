@@ -7,7 +7,7 @@ public class SharedPreferencesHandler {
     private static final String TAG = "SharedPreferencesHandler";
 
     /**
-     * Datos que guardamos en la preferencias de usuario
+     * Store data in user's preferences
      */
     public static final String CREDENTIALS_ID = "LOGIN_CREDENTIALS_ID";
     public static final String CREDENTIALS_SESSION = "LOGIN_CREDENTIALS_SESSION";
