@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +18,6 @@ import java.util.Map;
 
 import pro.vicente.nfcreader.R;
 import pro.vicente.nfcreader.RESTModules.RESTRestoreSessionModule;
-import pro.vicente.nfcreader.Statics.RESTfulConsts;
 import pro.vicente.nfcreader.Statics.SharedPreferencesHandler;
 import pro.vicente.nfcreader.Statics.StaticView;
 import restfulapi.HttpResponse;
@@ -60,12 +60,18 @@ public class LoginActivity extends FragmentActivity {
         this.pwd = (EditText) findViewById(R.id.pwd);
         this.server = (EditText) findViewById(R.id.server);
 
+        if (SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, null) != null) {
+            this.server.setText(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
+        }
+
+
         this.login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StaticView.disable(LoginActivity.this, login);
-                if (!(user.getText().toString().isEmpty() || pwd.getText().toString().isEmpty())) {
+                if (!(user.getText().toString().isEmpty() || pwd.getText().toString().isEmpty() || server.toString().isEmpty())) {
                     StaticView.disable(LoginActivity.this, login);
+                    SharedPreferencesHandler.getCredentialsSharedPreferencesEditor(getApplicationContext()).putString(SharedPreferencesHandler.CREDENTIALS_SERVER, server.getText().toString()).commit();
                     loginWithCredentials(user.getText().toString().toUpperCase(Locale.getDefault()), pwd.getText().toString());
                 } else {
                     Snackbar.make(login, getString(R.string.provide_user_and_pass), Snackbar.LENGTH_LONG).show();
@@ -76,6 +82,7 @@ public class LoginActivity extends FragmentActivity {
     }
 
     private void loginWithCredentials(final String userCredential, final String pwdCredential) {
+        Log.v("TAG", "lol");
         JSONObject params = new JSONObject();
         params.put("user", userCredential);
         params.put("pwd", pwdCredential);
@@ -91,7 +98,7 @@ public class LoginActivity extends FragmentActivity {
                             .putString(SharedPreferencesHandler.CREDENTIALS_PWD, pwdCredential)
                             .commit();
 
-                    rest = RESTfulAPI.createInstance(LoginActivity.this, server.getText().toString());
+                    rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
                     rest.addModule(new RESTAddDefaultHeadersModule());
                     rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
                     rest.addModule(new RESTAddAuthBasicModule((String) data.get("session"), "suchpassword"));
@@ -132,6 +139,7 @@ public class LoginActivity extends FragmentActivity {
                 StaticView.enable(LoginActivity.this, login);
             }
         });
+        rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         rest.executeAsync(loginRequest);
     }
 
@@ -165,6 +173,7 @@ public class LoginActivity extends FragmentActivity {
     }
 
     private void startMainActivity() {
+        rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         rest.addModule(new RESTAddDefaultHeadersModule());
         rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
         startActivity(new Intent(this, MainActivity.class));

@@ -8,6 +8,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import restfulapi.HttpResponse;
 import restfulapi.log.RESTfulAPILog;
@@ -36,8 +39,17 @@ public class HttpPOSTBitmap extends HttpPOST {
         URL url = new URL(parseURI(host, path, null));
         HttpResponse response = new HttpResponse(url.toString());
 
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setUseCaches(false);
+        HttpURLConnection urlConnection;
+        if (host.startsWith("https")) {
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            try {
+                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(CustomSSLSocketFactory.getSSLSocketFactory(context));
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+        } else {
+            urlConnection = (HttpURLConnection) url.openConnection();
+        }        urlConnection.setUseCaches(false);
         urlConnection.setDoOutput(true);
         urlConnection.setRequestMethod("POST");
         urlConnection.setChunkedStreamingMode(0);

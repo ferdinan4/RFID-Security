@@ -5,6 +5,9 @@ import android.content.Context;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import restfulapi.HttpMethod;
 import restfulapi.HttpResponse;
@@ -23,7 +26,18 @@ public class HttpDELETE extends HttpMethod {
         URL url = new URL(parseURI(host, path, queryParameters));
         HttpResponse response = new HttpResponse(url.toString());
 
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection urlConnection;
+        if (host.startsWith("https")) {
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            try {
+                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(CustomSSLSocketFactory.getSSLSocketFactory(context));
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+        } else {
+            urlConnection = (HttpURLConnection) url.openConnection();
+        }
+
         urlConnection.setRequestMethod("DELETE");
         setHeaders(urlConnection);
         setCacheStore(false);

@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 
 import pro.vicente.nfcreader.R;
 import pro.vicente.nfcreader.RESTModules.RESTRestoreSessionModule;
-import pro.vicente.nfcreader.Statics.RESTfulConsts;
 import pro.vicente.nfcreader.Statics.SharedPreferencesHandler;
 import restfulapi.HttpResponse;
 import restfulapi.RESTfulAPI;
@@ -49,9 +48,9 @@ public class MainActivity extends ArduinoADK {
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         try {
-            rest = RESTfulAPI.getInstance(RESTfulConsts.REST_URL);
+            rest = RESTfulAPI.getInstance(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         } catch (NoSuchInstanceException e) {
-            rest = RESTfulAPI.createInstance(this, RESTfulConsts.REST_URL);
+            rest = RESTfulAPI.createInstance(this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
             rest.addModule(new RESTAddDefaultHeadersModule());
             rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
             rest.addModule(new RESTAddAuthBasicModule(SharedPreferencesHandler.getCredentialsSharedPreferences(this).getString(SharedPreferencesHandler.CREDENTIALS_SESSION, null), "suchpassword"));

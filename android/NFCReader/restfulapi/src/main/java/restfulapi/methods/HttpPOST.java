@@ -5,6 +5,9 @@ import android.content.Context;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import restfulapi.HttpMethod;
 import restfulapi.HttpResponse;
@@ -23,8 +26,17 @@ public class HttpPOST extends HttpMethod {
         URL url = new URL(parseURI(host, path, null));
         HttpResponse response = new HttpResponse(url.toString());
 
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setDoOutput(true);
+        HttpURLConnection urlConnection;
+        if (host.startsWith("https")) {
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            try {
+                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(CustomSSLSocketFactory.getSSLSocketFactory(context));
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+        } else {
+            urlConnection = (HttpURLConnection) url.openConnection();
+        }        urlConnection.setDoOutput(true);
         urlConnection.setChunkedStreamingMode(0);
         urlConnection.setRequestMethod("POST");
         setHeaders(urlConnection);
