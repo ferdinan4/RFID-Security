@@ -10,16 +10,16 @@ import org.json.simple.parser.ParseException;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import es.furiios.restfulapi.HttpMethod;
-import es.furiios.restfulapi.HttpResponse;
-import es.furiios.restfulapi.RESTfulAPI;
-import es.furiios.restfulapi.callbacks.RESTCallback;
-import es.furiios.restfulapi.enums.CacheType;
-import es.furiios.restfulapi.log.RESTfulAPILog;
-import es.furiios.restfulapi.methods.HttpPOST;
-import es.furiios.restfulapi.modules.RESTAddAuthBasicModule;
-import es.furiios.restfulapi.modules.RESTfulAPIModule;
 import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
+import restfulapi.HttpMethod;
+import restfulapi.HttpResponse;
+import restfulapi.RESTfulAPI;
+import restfulapi.callbacks.RESTCallback;
+import restfulapi.enums.CacheType;
+import restfulapi.log.RESTfulAPILog;
+import restfulapi.methods.HttpPOST;
+import restfulapi.modules.RESTAddAuthBasicModule;
+import restfulapi.modules.RESTfulAPIModule;
 
 public class RESTRestoreSessionModule extends RESTfulAPIModule {
 

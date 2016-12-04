@@ -15,6 +15,7 @@ public class SharedPreferencesHandler {
     public static final String CREDENTIALS_PWD = "LOGIN_CREDENTIALS_PWD";
     public static final String CREDENTIALS_NAME = "LOGIN_CREDENTIALS_NAME";
     public static final String CREDENTIALS_SURNAME = "LOGIN_CREDENTIALS_SURNAME";
+    public static final String CREDENTIALS_SERVER = "LOGIN_CREDENTIALS_SERVER";
 
     public static SharedPreferences getCredentialsSharedPreferences(Context context) {
         return context.getSharedPreferences("RFIDSecurityLoginPreferences", Context.MODE_PRIVATE);

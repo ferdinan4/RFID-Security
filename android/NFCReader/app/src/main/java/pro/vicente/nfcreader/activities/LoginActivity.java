@@ -64,7 +64,6 @@ public class LoginActivity extends FragmentActivity {
             this.server.setText(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         }
 
-
         this.login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +81,6 @@ public class LoginActivity extends FragmentActivity {
     }
 
     private void loginWithCredentials(final String userCredential, final String pwdCredential) {
-        Log.v("TAG", "lol");
         JSONObject params = new JSONObject();
         params.put("user", userCredential);
         params.put("pwd", pwdCredential);

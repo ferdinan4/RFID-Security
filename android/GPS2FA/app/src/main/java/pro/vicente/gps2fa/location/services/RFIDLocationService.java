@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -22,22 +21,19 @@ import com.google.android.gms.location.LocationServices;
 
 import org.json.simple.JSONObject;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-import es.furiios.restfulapi.RESTfulAPI;
-import es.furiios.restfulapi.exceptions.NoSuchInstanceException;
-import es.furiios.restfulapi.methods.HttpPUT;
-import es.furiios.restfulapi.modules.RESTAddAuthBasicModule;
-import es.furiios.restfulapi.modules.RESTAddDefaultHeadersModule;
 import pro.vicente.gps2fa.RESTModules.RESTRestoreSessionModule;
-import pro.vicente.gps2fa.Statics.RESTfulConsts;
 import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
 import pro.vicente.gps2fa.log.Logger;
+import restfulapi.RESTfulAPI;
+import restfulapi.exceptions.NoSuchInstanceException;
+import restfulapi.methods.HttpPUT;
+import restfulapi.modules.RESTAddAuthBasicModule;
+import restfulapi.modules.RESTAddDefaultHeadersModule;
 
 public class RFIDLocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ResultCallback {
 
@@ -59,9 +55,9 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         Logger.v(TAG, "RFIDLocationService started!");
         if (SharedPreferencesHandler.getCredentialsSharedPreferences(this).getString(SharedPreferencesHandler.CREDENTIALS_ID, null) != null) {
             try {
-                rest = RESTfulAPI.getInstance(RESTfulConsts.REST_URL);
+                rest = RESTfulAPI.getInstance(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
             } catch (NoSuchInstanceException e) {
-                rest = RESTfulAPI.createInstance(this, RESTfulConsts.REST_URL);
+                rest = RESTfulAPI.createInstance(this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
                 rest.addModule(new RESTAddDefaultHeadersModule());
                 rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
                 rest.addModule(new RESTAddAuthBasicModule(SharedPreferencesHandler.getCredentialsSharedPreferences(this).getString(SharedPreferencesHandler.CREDENTIALS_SESSION, null), "suchpassword"));

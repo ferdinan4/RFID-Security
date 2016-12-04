@@ -15,32 +15,31 @@ import org.json.simple.parser.JSONParser;
 import java.util.Locale;
 import java.util.Map;
 
-import es.furiios.restfulapi.HttpResponse;
-import es.furiios.restfulapi.RESTfulAPI;
-import es.furiios.restfulapi.callbacks.RESTCallback;
-import es.furiios.restfulapi.enums.FallbackCode;
-import es.furiios.restfulapi.handlers.RestAsyncHandler;
-import es.furiios.restfulapi.methods.HttpGET;
-import es.furiios.restfulapi.methods.HttpPOST;
-import es.furiios.restfulapi.modules.RESTAddAuthBasicModule;
-import es.furiios.restfulapi.modules.RESTAddDefaultHeadersModule;
 import pro.vicente.gps2fa.R;
 import pro.vicente.gps2fa.RESTModules.RESTRestoreSessionModule;
-import pro.vicente.gps2fa.Statics.RESTfulConsts;
 import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
 import pro.vicente.gps2fa.Statics.StaticView;
+import restfulapi.HttpResponse;
+import restfulapi.RESTfulAPI;
+import restfulapi.callbacks.RESTCallback;
+import restfulapi.enums.FallbackCode;
+import restfulapi.handlers.RestAsyncHandler;
+import restfulapi.methods.HttpGET;
+import restfulapi.methods.HttpPOST;
+import restfulapi.modules.RESTAddAuthBasicModule;
+import restfulapi.modules.RESTAddDefaultHeadersModule;
 
 public class LoginActivity extends FragmentActivity {
-   
+
     private Button login;
-    private EditText user, pwd;
+    private EditText user, pwd, server;
     private SharedPreferences preferences;
 
-    private RESTfulAPI rest = RESTfulAPI.createInstance(this, RESTfulConsts.REST_URL);
+    private RESTfulAPI rest;
 
     /**
      * This method is executed when the application is initialized. Then, check of the user's
-     * credentials against the API and this will be returned by the session token. 
+     * credentials against the API and this will be returned by the session token.
      * Also, it initializes the components of the view and the associated events.
      *
      * @param savedInstanceState
@@ -66,13 +65,19 @@ public class LoginActivity extends FragmentActivity {
         this.login = (Button) findViewById(R.id.sign_in);
         this.user = (EditText) findViewById(R.id.user);
         this.pwd = (EditText) findViewById(R.id.pwd);
+        this.server = (EditText) findViewById(R.id.server);
+
+        if (SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, null) != null) {
+            this.server.setText(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
+        }
 
         this.login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StaticView.disable(LoginActivity.this, login);
-                if (!(user.getText().toString().isEmpty() || pwd.getText().toString().isEmpty())) {
+                if (!(user.getText().toString().isEmpty() || pwd.getText().toString().isEmpty() || server.toString().isEmpty())) {
                     StaticView.disable(LoginActivity.this, login);
+                    SharedPreferencesHandler.getCredentialsSharedPreferencesEditor(getApplicationContext()).putString(SharedPreferencesHandler.CREDENTIALS_SERVER, server.getText().toString()).commit();
                     loginWithCredentials(user.getText().toString().toUpperCase(Locale.getDefault()), pwd.getText().toString());
                 } else {
                     Snackbar.make(login, getString(R.string.provide_user_and_pass), Snackbar.LENGTH_LONG).show();
@@ -84,8 +89,9 @@ public class LoginActivity extends FragmentActivity {
 
     /**
      * This method is responsible for making the POST request against the REST API to check the credentials of the user
+     *
      * @param userCredential Username
-     * @param pwdCredential User's Password
+     * @param pwdCredential  User's Password
      */
 
     private void loginWithCredentials(final String userCredential, final String pwdCredential) {
@@ -104,6 +110,7 @@ public class LoginActivity extends FragmentActivity {
                             .putString(SharedPreferencesHandler.CREDENTIALS_PWD, pwdCredential)
                             .commit();
 
+                    rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
                     rest.addModule(new RESTAddDefaultHeadersModule());
                     rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
                     rest.addModule(new RESTAddAuthBasicModule((String) data.get("session"), "suchpassword"));
@@ -144,6 +151,7 @@ public class LoginActivity extends FragmentActivity {
                 StaticView.enable(LoginActivity.this, login);
             }
         });
+        rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         rest.executeAsync(loginRequest);
     }
 
@@ -185,6 +193,7 @@ public class LoginActivity extends FragmentActivity {
      */
 
     private void startMainActivity() {
+        rest = RESTfulAPI.createInstance(LoginActivity.this, SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
         rest.addModule(new RESTAddDefaultHeadersModule());
         rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));
         startActivity(new Intent(this, MainActivity.class));
