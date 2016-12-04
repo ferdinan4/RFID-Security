@@ -232,11 +232,6 @@ class db {
 		return mysqli_close($this->db_conection);
 	}
 
-	/**
-	 * mktimestamp get the time of the connection when is made.
-	 * @return timestamp in format UNIX for given arguments Y:m:d H:i:s .
-	 */
-
 	public static function mktimestamp($timestamp = null) {
 		return date('YmdHis', ($timestamp == null ? time() : $timestamp));
 	}

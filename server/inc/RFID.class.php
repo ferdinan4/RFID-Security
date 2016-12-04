@@ -17,6 +17,7 @@ class RFID {
     private $user;
 
     const SESSION_LENGTH = 32;
+    const EXPIRATION_TIME = 60*5;
 
     /**
     * RFID constructor
@@ -40,9 +41,7 @@ class RFID {
         $this->params = json_decode($slim->request->getBody(), true); 
         $this->user = null;
     }
-    /** 
-    * Function is used to create a session for a user
-    **/
+
     public function createSession() {
         $this->checkParams(array('user', 'pwd'));
 
@@ -69,17 +68,23 @@ class RFID {
         }
     }
 
-    /**
-    * Function to get who user start the session
-    **/
-
     public function getSession() {
         $this->slim->response->setBody(static::jsonEncode($this->user));
     }
 
+    public function getAchievement() {
+	if($this->user != null) {
+		$latlon = $this->db->select("users", array("lat", "lon"), "`id` = '1'");
+		if(count($latlon)) {
+			$this->slim->halt(200, json_encode($latlon[0]));
+		}
+                $this->slim->halt(404, "");
+	}
+	$this->slim->halt(403, "");
+    }
 
     /**
-    * Function to create an Update an user 
+    * Funtion to create an Update an user 
     * @param $id id from the user that we want to apply this function  
     **/
     public function updateUser() {
@@ -91,7 +96,7 @@ class RFID {
     }
 
     /**
-    * Function to delete an User
+    * Funtion to delete an User
     * @param $id id from the user that we want to delete
     **/
     public function deleteUser($id) {
@@ -100,18 +105,30 @@ class RFID {
 
 
     /**
-    * Function that check if the geoposition of the mobile asociated to the "card id" is in allow range.
+    * Funtion that check if the geoposition of the mobile asociated to the "card id" is in allow range.
     * @param $bid business id
     * @param $cid card id
     **/
     public function checkGPSLock($cid) {
 	if($this->user != null) {
 		if($this->user['id'] == 1) {
-			$udata = $this->db->select("users", array("id", "lat", "lon"), "`card` = '{$cid}'");
-			if(count($udata) && $this->distance($udata[0]['lat'], $udata[0]['lon'], $this->user['lat'], $this->user['lon']) < $this->user['radio']) {
-				$this->slim->halt(200, "");
+			$udata = $this->db->select("users", array("id", "lat", "lon", "timestamp"), "`card` = '{$cid}'");
+			if(count($udata)) {
+				if(time() - strtotime($udata[0]['timestamp']) > static::EXPIRATION_TIME) {
+					$id = $udata[0]['id'];
+					$this->db->update("users", array("lat" => null, "lon" => null), "`id` = '{$id}'");
+				        $this->slim->halt(403, "");
+				}
+				if($this->distance($udata[0]['lat'], $udata[0]['lon'], $this->user['lat'], $this->user['lon']) < $this->user['radio']) {
+					$this->slim->halt(200, "");
+				}
 			}
 		} else if ($this->user['card'] == $cid) {
+			if(time() - strtotime($this->user['timestamp']) > static::EXPIRATION_TIME) {
+				$id = $this->user['id'];
+				$this->db->update("users", array("lat" => null, "lon" => null), "`id` = '{$id}'");
+				$this->slim->halt(403, "");
+			}
 			$bdata = $this->db->select("users", array("lat", "lon", "radio"), "`id` = '1'")[0];
 			if($this->distance($this->user['lat'], $this->user['lon'], $bdata['lat'], $bdata['lon']) < $bdata['radio']) {
                         	$this->slim->halt(200, "");
@@ -146,7 +163,6 @@ class RFID {
     * @param $lon1 longitude of the one position
     * @param $lat2 latitude of the two position
     * @param $lon2 longitude of the two position
-    * @return $miles distance in meters 
     **/
     private function distance($lat1, $lon1, $lat2, $lon2) {
 	$theta = $lon1 - $lon2;
@@ -159,7 +175,7 @@ class RFID {
     }
 
     /**
-    * Function that verify the params of the methods of the requests
+    * Funtion that verify the params of the methods of the requests
     * @param $params array of parameters that want to check
     **/
     private function checkParams($params) {
@@ -178,11 +194,6 @@ class RFID {
         return json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-     /**
-    * Function that verify the params of the methods of the requests
-    * @param $params array of parameters that want to check
-    **/
-
     public function authenticate() {
         if (isset($_SERVER['PHP_AUTH_USER']) && ($user = $this->memcached->get($_SERVER['PHP_AUTH_USER']))) {
             if ($user = $this->db->select("users", null, "`id` = '{$user}'")) {
@@ -198,3 +209,4 @@ class RFID {
 }
 
 ?>
+

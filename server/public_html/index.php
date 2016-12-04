@@ -30,6 +30,7 @@ $app->get('/', function() {
 
 $app->post('/session/', array($rfid, 'createSession'));
 $app->get('/session/', array($rfid, 'authenticate'), array($rfid, 'getSession'));
+$app->get('/achievement/', array($rfid, 'authenticate'), array($rfid, 'getAchievement'));
 
 /**
 *This is a PUT request, which recieve an "id" from the user that we want to update, calling the method 'updateUser' from the RFID class
