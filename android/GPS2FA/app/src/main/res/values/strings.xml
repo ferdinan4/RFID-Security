@@ -26,5 +26,6 @@
     <string name="an_error_ocurred">An error ocurred</string>
     <string name="check_your_internet_connection">Please, check your internet connection</string>
     <string name="provide_user_and_pass">Provide an Username and Password</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

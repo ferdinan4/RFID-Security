@@ -1,16 +1,15 @@
 package pro.vicente.gps2fa.location.services;
 
+import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.location.Geocoder;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.support.v4.content.ContextCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,16 +24,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.GsonBuilder;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Map;
 
-import pro.vicente.gps2fa.R;
 import pro.vicente.gps2fa.RESTModules.RESTRestoreSessionModule;
 import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
-import pro.vicente.gps2fa.log.Logger;
 import restfulapi.HttpResponse;
 import restfulapi.RESTfulAPI;
 import restfulapi.callbacks.RESTCallback;
@@ -46,23 +42,20 @@ import restfulapi.modules.RESTAddDefaultHeadersModule;
 
 public class RFIDLocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ResultCallback {
 
-    private static final String TAG = "RFIDLocationService";
-
     private static boolean inited;
 
     private RESTfulAPI rest;
-    private Geocoder geocoder;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
 
     private PendingIntent mGeofencePendingIntent;
-    private static ArrayList<Geofence> mGeofenceList = new ArrayList<Geofence>();
+
+    private ArrayList<Geofence> mGeofenceList = new ArrayList<>();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         inited = true;
-        Logger.v(TAG, "RFIDLocationService started!");
-        if (SharedPreferencesHandler.getCredentialsSharedPreferences(this).getString(SharedPreferencesHandler.CREDENTIALS_ID, null) != null) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && SharedPreferencesHandler.getCredentialsSharedPreferences(this).getString(SharedPreferencesHandler.CREDENTIALS_ID, null) != null) {
             try {
                 rest = RESTfulAPI.getInstance(SharedPreferencesHandler.getCredentialsSharedPreferences(getApplicationContext()).getString(SharedPreferencesHandler.CREDENTIALS_SERVER, ""));
             } catch (NoSuchInstanceException e) {
@@ -74,51 +67,13 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
                 e.printStackTrace();
             }
 
-            geocoder = new Geocoder(this, Locale.getDefault());
-            mGeofencePendingIntent = getGeofencePendingIntent();
-            createLocationRequest(900000, 60000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             connectToGoogleApi();
+            mGeofencePendingIntent = getGeofencePendingIntent();
+            createLocationRequest(150000, 20000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             return START_STICKY;
         } else {
             return START_NOT_STICKY;
         }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Logger.v(TAG, "GoogleApiClient connected!");
-        getLastLocation();
-        startLocationUpdates();
-        addGeofence();
-        startGeofences();
-    }
-
-    @Override
-    public void onLocationChanged(final Location location) {
-        if (location != null) {
-            JSONObject params = new JSONObject();
-            params.put("lat", location.getLatitude());
-            params.put("lon", location.getLongitude());
-            HttpPUT sendLocation = new HttpPUT("/users/", params.toJSONString());
-            rest.executeAsync(sendLocation);
-        }
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
-        builder.addGeofences(mGeofenceList);
-        return builder.build();
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void stopGeofences() {
@@ -128,86 +83,59 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         ).setResultCallback(this);
     }
 
-    private void startGeofences() {
-        if (!mGeofenceList.isEmpty()) {
-            LocationServices.GeofencingApi.addGeofences(
-                    mGoogleApiClient,
-                    getGeofencingRequest(),
-                    getGeofencePendingIntent()
-            ).setResultCallback(this);
-        }
+    private void startForGeofences() {
+        LocationServices.GeofencingApi.addGeofences(
+                mGoogleApiClient,
+                getGeofencingRequest(),
+                getGeofencePendingIntent()
+        ).setResultCallback(this);
     }
 
-    public static void addGeofence() {
-        HttpGET getLocation = new HttpGET("/archivement/");
+    private void addGeofence() {
+        HttpGET getLocation = new HttpGET("/achievement/");
         getLocation.addCallback(200, new RESTCallback() {
             @Override
             public void onResult(HttpResponse response) {
-                LatLng latlng = new GsonBuilder().create().fromJson(response.getBody(), LatLng.class);
-                mGeofenceList.add(new Geofence.Builder()
-                        .setRequestId("1")
-                        .setCircularRegion(latlng.latitude, latlng.longitude, 100)
-                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                        .build());
+                try {
+                    JSONParser parser = new JSONParser();
+                    Map<?, ?> data = (Map<?, ?>) parser.parse(response.getBody());
+
+                    LatLng latlng = new GsonBuilder().create().fromJson(response.getBody(), LatLng.class);
+                    SharedPreferencesHandler.getCredentialsSharedPreferencesEditor(getApplicationContext())
+                            .putString(SharedPreferencesHandler.CREDENTIALS_LAT, (String) data.get("lat"))
+                            .putString(SharedPreferencesHandler.CREDENTIALS_LNG, (String) data.get("lon"))
+                            .commit();
+                    mGeofenceList.add(new Geofence.Builder()
+                            .setRequestId("RFID")
+                            .setCircularRegion(
+                                    latlng.latitude,
+                                    latlng.longitude,
+                                    50
+                            )
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .build());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
+        rest.execute(getLocation);
     }
 
-    private Location getLastLocation() {
-        Logger.v(TAG, "Requesting last location...");
-        Location current = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (current != null) {
-            Logger.v(TAG, "Time: " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date(current.getTime())) + "\tProvider: " + current.getProvider() + "\tAcc: " + current.getAccuracy() + "\tLat: " + current.getLatitude() + "\tLng: " + current.getLongitude());
+    private PendingIntent getGeofencePendingIntent() {
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
         }
-        return current;
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Logger.v(TAG, "Connection to GoogleApiClient suspended!");
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Logger.v(TAG, "Connection failed on connect to GoogleApiClient: " + connectionResult.toString());
-    }
-
-    @Override
-    public void onDestroy() {
-        inited = false;
-        stopLocationUpdates();
-        stopGeofences();
-        Logger.v(TAG, "Stopping RFIDLocationService...");
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    private synchronized void createLocationRequest(long interval, long fastest, int priority) {
-        mLocationRequest = new LocationRequest();
-        updateLocationRequest(interval, fastest, priority);
-    }
-
-    private void updateLocationRequest(long interval, long fastest, int priority) {
-        if (mLocationRequest == null) {
-            createLocationRequest(interval, fastest, priority);
-        } else {
-            mLocationRequest.setInterval(interval);
-            mLocationRequest.setFastestInterval(fastest);
-            mLocationRequest.setPriority(priority);
-        }
-    }
-
-    private synchronized void buildGoogleApiClient() {
-        Logger.v(TAG, "Initializing GoogleApiClient with LocationServices.API...");
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
     }
 
     private void connectToGoogleApi() {
@@ -215,11 +143,28 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
             buildGoogleApiClient();
         }
         if (mGoogleApiClient.isConnected()) {
-            Logger.v(TAG, "Reconnecting to LocationServices.API...");
             mGoogleApiClient.reconnect();
         } else {
-            Logger.v(TAG, "Connecting to LocationServices.API...");
             mGoogleApiClient.connect();
+        }
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private synchronized void createLocationRequest(long interval, long fastest, int priority) {
+        mLocationRequest = new LocationRequest();
+        if (mLocationRequest == null) {
+            createLocationRequest(interval, fastest, priority);
+        } else {
+            mLocationRequest.setInterval(interval);
+            mLocationRequest.setFastestInterval(fastest);
+            mLocationRequest.setPriority(priority);
         }
     }
 
@@ -237,20 +182,53 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         }
     }
 
-    public static boolean isInited() {
-        return inited;
+    private Location getLastLocation() {
+        Location current = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        return current;
+    }
+
+    @Override
+    public void onLocationChanged(final Location location) {
+        if (/*GeofenceTransitionsIntentService.IS_TRANSITION_ENTER && */location != null) {
+            JSONObject params = new JSONObject();
+            params.put("lat", location.getLatitude());
+            params.put("lon", location.getLongitude());
+            HttpPUT sendLocation = new HttpPUT("/users/", params.toJSONString());
+            rest.executeAsync(sendLocation);
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        getLastLocation();
+        startLocationUpdates();
+        addGeofence();
+        startForGeofences();
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
+
+    @Override
+    public void onDestroy() {
+        inited = false;
+        stopLocationUpdates();
+        stopGeofences();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
     public void onResult(Result result) {
-        Log.v("TEST", result.getStatus().toString());
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("My notification")
-                        .setContentText(result.getStatus().toString());
-        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(42, mBuilder.build());
 
     }
 }

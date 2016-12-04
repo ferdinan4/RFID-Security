@@ -13,8 +13,8 @@ public class SharedPreferencesHandler {
     public static final String CREDENTIALS_SESSION = "LOGIN_CREDENTIALS_SESSION";
     public static final String CREDENTIALS_USER = "LOGIN_CREDENTIALS_USER";
     public static final String CREDENTIALS_PWD = "LOGIN_CREDENTIALS_PWD";
-    public static final String CREDENTIALS_NAME = "LOGIN_CREDENTIALS_NAME";
-    public static final String CREDENTIALS_SURNAME = "LOGIN_CREDENTIALS_SURNAME";
+    public static final String CREDENTIALS_LAT = "LOGIN_CREDENTIALS_LAT";
+    public static final String CREDENTIALS_LNG = "LOGIN_CREDENTIALS_LNG";
     public static final String CREDENTIALS_SERVER = "LOGIN_CREDENTIALS_SERVER";
 
     public static SharedPreferences getCredentialsSharedPreferences(Context context) {
