@@ -1,6 +1,7 @@
 package pro.vicente.gps2fa.location.services;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -8,6 +9,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -18,6 +21,8 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.GsonBuilder;
 
 import org.json.simple.JSONObject;
 
@@ -26,11 +31,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import pro.vicente.gps2fa.R;
 import pro.vicente.gps2fa.RESTModules.RESTRestoreSessionModule;
 import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
 import pro.vicente.gps2fa.log.Logger;
+import restfulapi.HttpResponse;
 import restfulapi.RESTfulAPI;
+import restfulapi.callbacks.RESTCallback;
 import restfulapi.exceptions.NoSuchInstanceException;
+import restfulapi.methods.HttpGET;
 import restfulapi.methods.HttpPUT;
 import restfulapi.modules.RESTAddAuthBasicModule;
 import restfulapi.modules.RESTAddDefaultHeadersModule;
@@ -80,8 +89,8 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         Logger.v(TAG, "GoogleApiClient connected!");
         getLastLocation();
         startLocationUpdates();
-        addGeoference(null);
-        startGeoferences();
+        addGeofence();
+        startGeofences();
     }
 
     @Override
@@ -112,14 +121,14 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private void stopGeoferences() {
+    private void stopGeofences() {
         LocationServices.GeofencingApi.removeGeofences(
                 mGoogleApiClient,
                 getGeofencePendingIntent()
         ).setResultCallback(this);
     }
 
-    private void startGeoferences() {
+    private void startGeofences() {
         if (!mGeofenceList.isEmpty()) {
             LocationServices.GeofencingApi.addGeofences(
                     mGoogleApiClient,
@@ -129,14 +138,20 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
         }
     }
 
-    public static void addGeoference(Location loc) {
-        //TODO user location
-        mGeofenceList.add(new Geofence.Builder()
-                .setRequestId("1")
-                .setCircularRegion(42.6033412, -5.5789584, 100)
-                .setExpirationDuration(604800000)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build());
+    public static void addGeofence() {
+        HttpGET getLocation = new HttpGET("/archivement/");
+        getLocation.addCallback(200, new RESTCallback() {
+            @Override
+            public void onResult(HttpResponse response) {
+                LatLng latlng = new GsonBuilder().create().fromJson(response.getBody(), LatLng.class);
+                mGeofenceList.add(new Geofence.Builder()
+                        .setRequestId("1")
+                        .setCircularRegion(latlng.latitude, latlng.longitude, 100)
+                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                        .build());
+            }
+        });
     }
 
     private Location getLastLocation() {
@@ -162,6 +177,7 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
     public void onDestroy() {
         inited = false;
         stopLocationUpdates();
+        stopGeofences();
         Logger.v(TAG, "Stopping RFIDLocationService...");
     }
 
@@ -227,6 +243,14 @@ public class RFIDLocationService extends Service implements GoogleApiClient.Conn
 
     @Override
     public void onResult(Result result) {
+        Log.v("TEST", result.getStatus().toString());
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("My notification")
+                        .setContentText(result.getStatus().toString());
+        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.notify(42, mBuilder.build());
 
     }
 }
