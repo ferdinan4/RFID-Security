@@ -31,9 +31,7 @@ import pro.vicente.gps2fa.Statics.SharedPreferencesHandler;
 import pro.vicente.gps2fa.Statics.StaticView;
 
 public class LoginActivity extends FragmentActivity {
-    /**
-     *
-     */
+   
     private Button login;
     private EditText user, pwd;
     private SharedPreferences preferences;
@@ -41,12 +39,13 @@ public class LoginActivity extends FragmentActivity {
     private RESTfulAPI rest = RESTfulAPI.createInstance(this, RESTfulConsts.REST_URL);
 
     /**
-     * Este metodo se ejecuta cuando se inicializa la aplicacion, en el se hace una comprobacion
-     * de las credenciales del usuario contra la API y esta la devolvera el token de sesion.
-     * Tambien se inicializan los componetes de la vista y los eventos asociados.
+     * This method is executed when the application is initialized. Then, check of the user's
+     * credentials against the API and this will be returned by the session token. 
+     * Also, it initializes the components of the view and the associated events.
      *
      * @param savedInstanceState
      */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,11 +83,11 @@ public class LoginActivity extends FragmentActivity {
     }
 
     /**
-     * Este metodo es el encargado de hacer la peticion POST contra la API REST para comprobar las
-     * crednciales del usuario
-     * @param userCredential Nombre de usuario
-     * @param pwdCredential Password del usuario
+     * This method is responsible for making the POST request against the REST API to check the credentials of the user
+     * @param userCredential Username
+     * @param pwdCredential User's Password
      */
+
     private void loginWithCredentials(final String userCredential, final String pwdCredential) {
         JSONObject params = new JSONObject();
         params.put("user", userCredential);
@@ -149,8 +148,8 @@ public class LoginActivity extends FragmentActivity {
     }
 
     /**
-     * Este metodo hace un peticion GET contra la API para obtener el token de session y guardarlo
-     * para así poder hacer las peticiones contra la API.
+     * This method do a GET request against API to obtain session's token and
+     * save to do requests against API.
      */
     private void loginWithSession() {
         HttpGET loginRequest = new HttpGET("/session/");
@@ -182,8 +181,9 @@ public class LoginActivity extends FragmentActivity {
     }
 
     /**
-     * Este metodo inicia la activity del main
+     * This method initializes the main activity
      */
+
     private void startMainActivity() {
         rest.addModule(new RESTAddDefaultHeadersModule());
         rest.addModule(new RESTRestoreSessionModule(getApplicationContext()));

@@ -40,7 +40,9 @@ class RFID {
         $this->params = json_decode($slim->request->getBody(), true); 
         $this->user = null;
     }
-
+    /** 
+    * Function is used to create a session for a user
+    **/
     public function createSession() {
         $this->checkParams(array('user', 'pwd'));
 
@@ -67,13 +69,17 @@ class RFID {
         }
     }
 
+    /**
+    * Function to get who user start the session
+    **/
+
     public function getSession() {
         $this->slim->response->setBody(static::jsonEncode($this->user));
     }
 
 
     /**
-    * Funtion to create an Update an user 
+    * Function to create an Update an user 
     * @param $id id from the user that we want to apply this function  
     **/
     public function updateUser() {
@@ -85,7 +91,7 @@ class RFID {
     }
 
     /**
-    * Funtion to delete an User
+    * Function to delete an User
     * @param $id id from the user that we want to delete
     **/
     public function deleteUser($id) {
@@ -94,7 +100,7 @@ class RFID {
 
 
     /**
-    * Funtion that check if the geoposition of the mobile asociated to the "card id" is in allow range.
+    * Function that check if the geoposition of the mobile asociated to the "card id" is in allow range.
     * @param $bid business id
     * @param $cid card id
     **/
@@ -140,6 +146,7 @@ class RFID {
     * @param $lon1 longitude of the one position
     * @param $lat2 latitude of the two position
     * @param $lon2 longitude of the two position
+    * @return $miles distance in meters 
     **/
     private function distance($lat1, $lon1, $lat2, $lon2) {
 	$theta = $lon1 - $lon2;
@@ -152,7 +159,7 @@ class RFID {
     }
 
     /**
-    * Funtion that verify the params of the methods of the requests
+    * Function that verify the params of the methods of the requests
     * @param $params array of parameters that want to check
     **/
     private function checkParams($params) {
@@ -170,6 +177,11 @@ class RFID {
     private static function jsonEncode($object) {
         return json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
+
+     /**
+    * Function that verify the params of the methods of the requests
+    * @param $params array of parameters that want to check
+    **/
 
     public function authenticate() {
         if (isset($_SERVER['PHP_AUTH_USER']) && ($user = $this->memcached->get($_SERVER['PHP_AUTH_USER']))) {
